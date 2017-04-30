@@ -141,6 +141,8 @@ func tarFile(tarWriter *tar.Writer, source, dest string) error {
 			// our new tar file is inside the directory being archived; skip it
 			return nil
 		}
+		//fixed bug for windows
+		header.Name = filepath.ToSlash(header.Name)
 
 		if info.IsDir() {
 			header.Name += "/"
