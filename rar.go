@@ -64,6 +64,22 @@ func (rarFormat) Read(input io.Reader, destination string) error {
 		return fmt.Errorf("read: failed to create reader: %v", err)
 	}
 
+	return extract(rr, destination)
+}
+
+// Open extracts the RAR file at source and puts the contents
+// into destination.
+func (rarFormat) Open(source, destination string) error {
+	rf, err := rardecode.OpenReader(source, "")
+	if err != nil {
+		return fmt.Errorf("%s: failed to open file: %v", source, err)
+	}
+	defer rf.Close()
+
+	return extract(&rf.Reader, destination)
+}
+
+func extract(rr *rardecode.Reader, destination string) error {
 	for {
 		header, err := rr.Next()
 		if err == io.EOF {
@@ -72,8 +88,15 @@ func (rarFormat) Read(input io.Reader, destination string) error {
 			return err
 		}
 
+		err = sanitizeExtractPath(header.Name, destination)
+		if err != nil {
+			return err
+		}
+
+		destpath := filepath.Join(destination, header.Name)
+
 		if header.IsDir {
-			err = mkdir(filepath.Join(destination, header.Name))
+			err = mkdir(destpath)
 			if err != nil {
 				return err
 			}
@@ -82,28 +105,16 @@ func (rarFormat) Read(input io.Reader, destination string) error {
 
 		// if files come before their containing folders, then we must
 		// create their folders before writing the file
-		err = mkdir(filepath.Dir(filepath.Join(destination, header.Name)))
+		err = mkdir(filepath.Dir(destpath))
 		if err != nil {
 			return err
 		}
 
-		err = writeNewFile(filepath.Join(destination, header.Name), rr, header.Mode())
+		err = writeNewFile(destpath, rr, header.Mode())
 		if err != nil {
 			return err
 		}
 	}
 
 	return nil
-}
-
-// Open extracts the RAR file at source and puts the contents
-// into destination.
-func (rarFormat) Open(source, destination string) error {
-	rf, err := os.Open(source)
-	if err != nil {
-		return fmt.Errorf("%s: failed to open file: %v", source, err)
-	}
-	defer rf.Close()
-
-	return Rar.Read(rf, destination)
 }
