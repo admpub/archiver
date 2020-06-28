@@ -281,8 +281,6 @@ func (t *Tar) writeWalk(source, topLevelFolder, destination string) error {
 		if err != nil {
 			return handleErr(err)
 		}
-		//fixed bug for windows
-		header.Name = filepath.ToSlash(header.Name)
 
 		var file io.ReadCloser
 		if info.Mode().IsRegular() {
