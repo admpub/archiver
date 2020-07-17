@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/admpub/archiver/v3"
+	"github.com/admpub/archiver"
 	"github.com/nwaples/rardecode"
 )
 
