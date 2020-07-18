@@ -6,7 +6,7 @@ import (
 	"path"
 	"testing"
 
-	"github.com/admpub/archiver/v3"
+	"github.com/admpub/archiver"
 )
 
 func requireRegularFile(t *testing.T, path string) os.FileInfo {
