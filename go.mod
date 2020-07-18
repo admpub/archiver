@@ -1,4 +1,4 @@
-module github.com/admpub/archiver/v4
+module github.com/admpub/archiver
 
 go 1.14
 
